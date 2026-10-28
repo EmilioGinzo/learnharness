@@ -40,8 +40,9 @@ import {
 import { MenuShell } from "@/components/menu-shell";
 import { Hint } from "@/components/ui/hint";
 import { useAppearance } from "./appearance.tsx";
+import { ThemeRow } from "./omarchy-theme.tsx";
 import { FontMenuList } from "./model-menu";
-import { CommitInput, SettingsRow, ThinSelect, Toggle } from "./controls.tsx";
+import { CommitInput, SettingsMenuTrigger, SettingsRow, ThinSelect, Toggle } from "./controls.tsx";
 
 /** The factory reading family — the DEFAULT row's identity (unset =
  *  this). Exported for tests. */
@@ -186,6 +187,7 @@ export function AppearanceSection({
 
 	return (
 		<>
+			<ThemeRow appearance={appearance} onSectionChange={onSectionChange} />
 			<SettingsRow label="Mode" hint="Coming soon" testid="row-mode" dimmed>
 				<ThinSelect value="dark" ariaLabel="mode" onChange={() => {}} testid="select-mode" disabled>
 					<option value="dark">Dark</option>
@@ -210,29 +212,22 @@ export function AppearanceSection({
 				testid="row-font"
 			>
 				<span ref={fontMenuOpen ? menuAnchorRef : undefined} className="relative flex items-center gap-2">
-					{/* The MenuTrigger look (agent-section's collapsed
-					    select — it lives unexported there, so the
-					    classes ride inline; the searchable machine is
-					    the shared part). The tooltip rides the CLOSED
-					    button ONLY (owner ruling 2026-09-26: never while
+					{/* The shared Agent/Appearance collapsed-menu trigger.
+					    The tooltip rides the CLOSED button ONLY
+					    (owner ruling 2026-09-26: never while
 					    the dropdown is out — it popped over the open
 					    menu when the wrap covered the whole anchor
 					    span). */}
 					{(() => {
 						const triggerButton = (
-							<button
-								type="button"
+							<SettingsMenuTrigger
+								value={appearance?.fontFamily || DEFAULT_READING_FONT}
 								aria-label="Reading font"
 								aria-expanded={fontMenuOpen}
 								data-testid="font-trigger"
 								onClick={openFontMenu}
-								className="flex h-7 min-w-20 items-center gap-1 rounded-sm border border-border bg-background px-1.5 font-ui text-xs text-foreground transition-colors hover:border-muted-foreground/50"
-							>
-								<span className="min-w-0 flex-1 truncate">{appearance?.fontFamily || DEFAULT_READING_FONT}</span>
-								<span aria-hidden className="text-muted-foreground">
-									▾
-								</span>
-							</button>
+								className="min-w-20"
+							/>
 						);
 						return fontMenuOpen ? (
 							triggerButton

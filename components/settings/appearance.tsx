@@ -21,6 +21,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FACTORY_SETTINGS, type AppearanceSettings } from "@/src/core";
+import { activeSystemTheme, SystemThemeContext, useSystemThemeClass, useSystemThemeFile, withSystemTheme } from "./omarchy-theme.tsx";
 
 /** The resolved, fully-concrete appearance view (delta + factory merged). */
 export function resolveAppearance(delta: AppearanceSettings | undefined) {
@@ -128,7 +129,12 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
 	const appliedRef = useRef<string>("");
 
 	// The vars apply on every change — stringified as the change signal.
-	const vars = useMemo(() => appearanceVars(resolveAppearance(delta)), [delta]);
+	const systemTheme = useSystemThemeFile(); // Omarchy theme (./omarchy-theme.tsx)
+	const vars = useMemo(
+		() => withSystemTheme(appearanceVars(resolveAppearance(delta)), delta?.theme, systemTheme),
+		[delta, systemTheme],
+	);
+	useSystemThemeClass(activeSystemTheme(delta?.theme, systemTheme));
 	const key = useMemo(() => JSON.stringify(vars), [vars]);
 	// REMOVAL is half the job (owner repro, fix wave): a later write that
 	// OMITS a var (empty field = factory, serif toggle back on) must clear
@@ -181,5 +187,9 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
 		() => ({ appearance: resolveAppearance(delta), onAppearanceChange }),
 		[delta, onAppearanceChange],
 	);
-	return <AppearanceContext.Provider value={value}>{children}</AppearanceContext.Provider>;
+	return (
+		<SystemThemeContext.Provider value={systemTheme}>
+			<AppearanceContext.Provider value={value}>{children}</AppearanceContext.Provider>
+		</SystemThemeContext.Provider>
+	);
 }

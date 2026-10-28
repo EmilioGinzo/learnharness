@@ -19,12 +19,15 @@ import type {
 	BackgroundModelRole,
 	CompactionSettings,
 	GeneralSettings,
+	DictationSettings,
 	GraphSettings,
 	ModelsSettings,
 	RoleModelOverride,
 } from "../core/settings.ts";
 import { BACKGROUND_MODEL_ROLES, COMPACTION_THRESHOLD_FLOOR, EXTRACTION_CHUNK_TOKENS_FLOOR, MODEL_SLOTS } from "../core/settings.ts";
 import { WRITABLE_TOOL_KEYS } from "../core/pending.ts";
+import { isDictationLanguage } from "../core/dictation.ts";
+import { parseAppearanceTheme } from "../core/appearance-theme.ts";
 
 /** Parsed-or-rejected — `ok: false` carries the 400's error message. */
 export type SettingsBodyResult<T> =
@@ -213,6 +216,11 @@ export function parseAppearanceSettingsBody(body: unknown): SettingsBodyResult<A
 	const raw = asRecord(body);
 	if (!raw) return { ok: false, error: "Invalid JSON body" };
 	const settings: AppearanceSettings = {};
+	if (raw.theme !== undefined) {
+		const theme = parseAppearanceTheme(raw.theme);
+		if (!theme.ok) return theme;
+		settings.theme = theme.theme;
+	}
 	if (raw.mode !== undefined) {
 		if (raw.mode !== "dark" && raw.mode !== "light") {
 			return { ok: false, error: "mode must be \"dark\" or \"light\"" };
@@ -375,6 +383,15 @@ export function parseCompactionSettingsBody(body: unknown): SettingsBodyResult<C
 	return { ok: true, settings };
 }
 
+/** dictation: { language?: one of Nova-3's supported language codes } */
+export function parseDictationSettingsBody(body: unknown): SettingsBodyResult<DictationSettings> {
+	const raw = asRecord(body);
+	if (!raw) return { ok: false, error: "Invalid JSON body" };
+	if (raw.language === undefined) return { ok: true, settings: {} };
+	if (!isDictationLanguage(raw.language)) return { ok: false, error: "Unsupported dictation language" };
+	return { ok: true, settings: { language: raw.language } };
+}
+
 /** The section→parser map for PUT /api/settings/[section] (the route also
  *  carries the special prompts sub-resource). */
 export const SETTINGS_SECTIONS = {
@@ -385,6 +402,7 @@ export const SETTINGS_SECTIONS = {
 	graph: parseGraphSettingsBody,
 	compaction: parseCompactionSettingsBody,
 	models: parseModelsSettingsBody,
+	dictation: parseDictationSettingsBody,
 } as const;
 
 export type SettingsSectionName = keyof typeof SETTINGS_SECTIONS;
