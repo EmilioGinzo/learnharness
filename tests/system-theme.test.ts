@@ -11,8 +11,9 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { appearanceVars, resolveAppearance } from "../components/settings/appearance.tsx";
+import { withSystemTheme } from "../components/settings/omarchy-theme.tsx";
 import { subscribe } from "../src/core/events.ts";
-import { sanitizeUserSettings } from "../src/core/settings.ts";
+import { sanitizeUserSettings, type AppearanceSettings } from "../src/core/settings.ts";
 import { SYSTEM_THEME_COLOR_VARS, sanitizeSystemTheme, systemThemeVars } from "../src/core/system-theme.ts";
 import { parseAppearanceSettingsBody } from "../src/server/settings-body.ts";
 import { readSystemTheme, watchSystemTheme } from "../src/server/system-theme.ts";
@@ -57,31 +58,30 @@ describe("systemThemeVars", () => {
 	});
 });
 
-describe("appearanceVars with the Omarchy theme", () => {
+describe("withSystemTheme over appearanceVars", () => {
 	const theme = sanitizeSystemTheme(themeFile())!;
+	const overlay = (delta: AppearanceSettings, systemTheme: typeof theme | null) =>
+		withSystemTheme(appearanceVars(resolveAppearance(delta)), delta.theme, systemTheme);
 
 	it("uses the theme file over the background derivation when selected", () => {
-		const vars = appearanceVars(resolveAppearance({ theme: "omarchy", background: "#000000" }), theme);
+		const vars = overlay({ theme: "omarchy", background: "#000000" }, theme);
 		assert.equal(vars["--background"], "#2f3138");
 		assert.equal(vars["--foreground"], "#c7c6c1");
 	});
 
 	it("keeps the app palette when the default theme is selected", () => {
-		const vars = appearanceVars(resolveAppearance({ background: "#000000" }), theme);
+		const vars = overlay({ background: "#000000" }, theme);
 		assert.equal(vars["--background"], "#000000");
 		assert.equal(vars["--foreground"], undefined);
 	});
 
 	it("falls back to the app palette when the file is missing", () => {
-		const vars = appearanceVars(resolveAppearance({ theme: "omarchy" }), null);
+		const vars = overlay({ theme: "omarchy" }, null);
 		assert.equal(vars["--background"], undefined);
 	});
 
 	it("still applies emphasis overrides on top of the theme", () => {
-		const vars = appearanceVars(
-			resolveAppearance({ theme: "omarchy", mdRendering: { boldColor: "#ff0000" } }),
-			theme,
-		);
+		const vars = overlay({ theme: "omarchy", mdRendering: { boldColor: "#ff0000" } }, theme);
 		assert.equal(vars["--lh-ink-strong"], "#ff0000");
 	});
 });

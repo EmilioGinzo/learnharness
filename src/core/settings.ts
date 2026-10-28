@@ -33,6 +33,7 @@ import type { ModelRole } from "../../config.ts";
 import type { ChatSettings } from "./contracts/chat.ts";
 import type { SearchEngineId } from "./search.ts";
 import { isDictationLanguage, type DictationLanguage } from "./dictation.ts";
+import { isAppearanceTheme, type AppearanceTheme } from "./appearance-theme.ts";
 
 /** The schema version this code understands. Bump ONLY for breaking shape
  *  changes (a field renamed/meaning changed); pure additions never bump. */
@@ -281,18 +282,9 @@ export interface MdRenderingSettings {
 	italicColor?: string | null;
 }
 
-/** The palette source: the app's own ("default") or the Omarchy theme file
- *  (core/system-theme.ts), which then replaces mode and background. */
-export const APPEARANCE_THEMES = ["default", "omarchy"] as const;
-export type AppearanceTheme = (typeof APPEARANCE_THEMES)[number];
-
-export function isAppearanceTheme(value: unknown): value is AppearanceTheme {
-	return typeof value === "string" && (APPEARANCE_THEMES as readonly string[]).includes(value);
-}
-
-/** Appearance settings — theme, mode, colors, type, markdown emphasis. */
+/** Appearance settings — mode, colors, type, markdown emphasis. */
 export interface AppearanceSettings {
-	/** "default" | "omarchy" (default "default"). */
+	/** "default" | "omarchy" (core/appearance-theme.ts; default "default"). */
 	theme?: AppearanceTheme;
 	/** "dark" | "light" (default dark). */
 	mode?: "dark" | "light";

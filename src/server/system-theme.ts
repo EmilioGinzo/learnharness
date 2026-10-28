@@ -13,10 +13,22 @@
  * (temp file + rename), which replaces the inode a file watch would hold.
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { SYSTEM_THEME_FILE } from "../../config.ts";
 import { emit } from "../core/events.ts";
 import { sanitizeSystemTheme, type SystemTheme } from "../core/system-theme.ts";
+
+/**
+ * THE OMARCHY THEME FILE: Omarchy's theme-set hook writes the current
+ * desktop palette here (core/system-theme.ts has the shape) — the T3 Code
+ * pattern (~/.t3/userdata/themes/omarchy.json). ONE fixed path for every run
+ * mode (packaged, Electron dev, web dev), so the hook needs no knowledge of
+ * LH_DATA_DIR. LH_SYSTEM_THEME_FILE relocates it (tests). Defined here, not
+ * in config.ts, to keep the shared config file free of fork-only lines.
+ */
+export const SYSTEM_THEME_FILE = process.env.LH_SYSTEM_THEME_FILE
+	? path.resolve(process.env.LH_SYSTEM_THEME_FILE)
+	: path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), ".config"), "LearnHarness", "themes", "omarchy.json");
 
 /** The current theme, or null (no file, unreadable, or incomplete). */
 export function readSystemTheme(file: string = SYSTEM_THEME_FILE): SystemTheme | null {

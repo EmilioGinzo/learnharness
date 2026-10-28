@@ -2,7 +2,7 @@
  * The Omarchy theme file (2026-10-26) — the response and the live-retint
  * watch live in the server seam (system-theme.ts); the route stays thin.
  */
-import { systemThemeResponse } from "@/src/server";
+import { systemThemeResponse } from "@/src/server/system-theme.ts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
