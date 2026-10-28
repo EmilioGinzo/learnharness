@@ -1,7 +1,8 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextPlugin from "@next/eslint-plugin-next";
 import tsParser from "@typescript-eslint/parser";
-import importPlugin from "eslint-plugin-import";
+import { importX } from "eslint-plugin-import-x";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 
 /**
  * ESLint with one job here: ENFORCE THE IMPORT LAW (the shell/core
@@ -29,13 +30,13 @@ export default defineConfig([
 			parser: tsParser,
 			parserOptions: { ecmaVersion: "latest", sourceType: "module" },
 		},
-		plugins: { "@next/next": nextPlugin, import: importPlugin },
+		plugins: { "@next/next": nextPlugin, "import-x": importX },
 		settings: {
-			"import/resolver": { typescript: { alwaysTryTypes: true } },
+			"import-x/resolver-next": [createTypeScriptImportResolver({ alwaysTryTypes: true })],
 		},
 		rules: {
 			...nextPlugin.configs.recommended.rules,
-			"import/no-restricted-paths": [
+			"import-x/no-restricted-paths": [
 				"error",
 				{
 					zones: [
