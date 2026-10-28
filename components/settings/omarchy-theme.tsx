@@ -13,9 +13,13 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { systemThemeVars, sanitizeSystemTheme, type SystemTheme } from "@/src/core/system-theme.ts";
-import type { AppearanceSettings } from "@/src/core";
-import type { AppearanceTheme } from "@/src/core/appearance-theme.ts";
+import {
+	systemThemeVars,
+	sanitizeSystemTheme,
+	type AppearanceSettings,
+	type AppearanceTheme,
+	type SystemTheme,
+} from "@/src/core";
 import { useServerEvent, useServerResync } from "@/components/server-events";
 import { SettingsRow, ThinSelect } from "./controls.tsx";
 

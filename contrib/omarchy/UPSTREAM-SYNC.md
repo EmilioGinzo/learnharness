@@ -26,6 +26,8 @@ git merge origin/main      # merge, don't rebase: rerere replays earlier resolut
 | `src/core/settings.ts` | import, `theme?` on `AppearanceSettings`, `theme` in `FactorySettings.appearance` and `FACTORY_SETTINGS.appearance`, one line in `sanitizeAppearance` |
 | `src/core/settings-resolution.ts` | `theme:` line in `resolveSettings` |
 | `src/server/settings-body.ts` | import, 5-line `theme` block in `parseAppearanceSettingsBody` |
+| `src/core/index.ts` | two one-line `export *` for `system-theme.ts` and `appearance-theme.ts` |
+| `src/server/index.ts` | one-line `export { systemThemeResponse }` |
 | `src/core/events.ts` | `"theme-changed"` in `ServerEvents` and `SERVER_EVENT_TYPES` |
 | `components/settings/appearance.tsx` | import, `useSystemThemeFile`/`withSystemTheme`/`useSystemThemeClass` in `AppearanceProvider`, `SystemThemeContext.Provider` around the return |
 | `components/settings/appearance-section.tsx` | import and `<ThemeRow … />` |
